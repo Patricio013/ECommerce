@@ -2,6 +2,7 @@ package com.ecomerce.demo.Clases;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,12 +19,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Usuarios implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +49,7 @@ public class Usuarios implements UserDetails{
     private Role rol;
 
     @OneToMany(mappedBy = "usuario")
-    private List<Catalogo> productosSubidos;
+    private Set<Catalogo> productosSubidos;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "carrito_id", referencedColumnName = "id")

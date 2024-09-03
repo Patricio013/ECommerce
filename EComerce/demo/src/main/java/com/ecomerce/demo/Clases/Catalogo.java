@@ -24,9 +24,12 @@ public class Catalogo {
     private String descripcion;
     private int stock;
 
+    private Double descuento= 0.0;
+    private Boolean EstadoDescuento= false;
+
     @ManyToOne
-    @JoinColumn(name = "creador_id", nullable = false)
-    private Usuarios creador;
+    @JoinColumn(name = "usuario_id")
+    private Usuarios usuario;
 
     @ManyToMany
     @JoinTable(
@@ -35,5 +38,14 @@ public class Catalogo {
         inverseJoinColumns = @JoinColumn(name = "categoria_id")
     )
     private Set<Categorias> categorias;
+
+    public Double PrecioDescuento(){
+        if (EstadoDescuento)
+            return precio - (precio*(descuento/100));
+        return precio;
+    }
     
+    public void ActivarDescuento(Double p){
+
+    }
 }
