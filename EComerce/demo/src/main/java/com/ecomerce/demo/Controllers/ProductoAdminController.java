@@ -43,7 +43,7 @@ public class ProductoAdminController {
     }
 
     @DeleteMapping("/borrar/imagen")
-    public ResponseEntity<Void> eliminarImagen(@PathVariable long id) {
+    public ResponseEntity<Void> eliminarImagen(@RequestParam long id) {
         productoService.eliminarImagen(id);
         return ResponseEntity.noContent().build();
     }
