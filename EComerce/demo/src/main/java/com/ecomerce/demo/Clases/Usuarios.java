@@ -1,60 +1,54 @@
 package com.ecomerce.demo.Clases;
 
+
 import java.util.Collection;
 import java.util.List;
-
+import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import jakarta.persistence.*;
+
 
 @Data
-@Entity
 @Builder
-public class Usuarios implements UserDetails{
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Usuarios implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String email;
-
-    private String name;
 
     private String password;
 
     private String firstName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
     private Role rol;
-
-    @OneToMany(mappedBy = "usuario")
-    private List<Catalogo> productosSubidos;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "carrito_id", referencedColumnName = "id")
-    private Carrito carrito;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(rol.name()));
     }
 
+    @OneToMany(mappedBy = "usuario")
+    private Set<Producto> productosSubidos;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "carrito_id", referencedColumnName = "id")
+    private Carrito carrito;
+    
     @Override
     public String getUsername() {
         return email;
@@ -79,5 +73,4 @@ public class Usuarios implements UserDetails{
     public boolean isEnabled() {
         return true;
     }
-    
 }

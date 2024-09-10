@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.ecomerce.demo.Clases.Role;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -26,8 +27,14 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**")
-                                                .permitAll()
+                                .authorizeHttpRequests(req -> req.requestMatchers("usuarios/**").permitAll()
+                                                .requestMatchers("/productos/**").hasAnyAuthority(Role.USER.name())
+                                                .requestMatchers("/categorias/ObtenerCategorias").permitAll()
+                                                .requestMatchers("/categorias/filtro").hasAnyAuthority(Role.USER.name())
+                                                .requestMatchers("/categorias/CrearCat").hasAnyAuthority(Role.ADMIN.name())
+                                                .requestMatchers("/carrito/**").hasAnyAuthority(Role.USER.name())
+                                                .requestMatchers("/productosUser/**").hasAnyAuthority(Role.USER.name())
+                                                .requestMatchers("/productosAdmin/**").hasAnyAuthority(Role.ADMIN.name())
                                                 .anyRequest()
                                                 .authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

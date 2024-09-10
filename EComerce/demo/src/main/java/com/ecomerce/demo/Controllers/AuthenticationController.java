@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.ecomerce.demo.Exceptions.EmailAlreadyExistsException;
 import com.ecomerce.demo.Request.AuthenticationRequest;
 import com.ecomerce.demo.Request.RegisterRequest;
 import com.ecomerce.demo.Response.AuthenticationResponse;
@@ -21,8 +21,8 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponse> register (@RequestBody RegisterRequest request) 
+    throws EmailAlreadyExistsException{
         return ResponseEntity.ok(service.register(request));
     }
 
@@ -31,4 +31,5 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
     }
+
 }

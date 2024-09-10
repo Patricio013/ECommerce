@@ -2,11 +2,13 @@ package com.ecomerce.demo.Services;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.ecomerce.demo.Clases.Usuarios;
 import com.ecomerce.demo.Config.JwtService;
+import com.ecomerce.demo.Exceptions.EmailAlreadyExistsException;
 import com.ecomerce.demo.Repositorys.UsuariosRepository;
 import com.ecomerce.demo.Request.AuthenticationRequest;
 import com.ecomerce.demo.Request.RegisterRequest;
@@ -22,8 +24,9 @@ public class AuthenticationService {
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
 
-        public AuthenticationResponse register(RegisterRequest request) {
-                var user = Usuarios.builder()
+        public AuthenticationResponse register(RegisterRequest request) throws EmailAlreadyExistsException{
+                if (!repository.existsByEmail(request.getEmail())) {
+                        var user = Usuarios.builder()
                                 .firstName(request.getFirstname())
                                 .lastName(request.getLastname())
                                 .email(request.getEmail())
@@ -36,6 +39,8 @@ public class AuthenticationService {
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
                                 .build();
+                    }
+                throw new EmailAlreadyExistsException();
         }
 
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -49,5 +54,10 @@ public class AuthenticationService {
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
                                 .build();
+        }
+
+        public Usuarios obtenerUsuarioAutenticado() {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                return (Usuarios) authentication.getPrincipal();
         }
 }

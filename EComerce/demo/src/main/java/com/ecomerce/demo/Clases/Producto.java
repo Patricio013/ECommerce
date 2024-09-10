@@ -8,13 +8,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
+// Importante, guardar URL de img y videos o guardar blob en BD directamente.
+
 @Data
 @Entity
-public class Catalogo {
+public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -24,9 +27,15 @@ public class Catalogo {
     private String descripcion;
     private int stock;
 
+    private Double descuento= 0.0;
+    private Boolean EstadoDescuento= false;
+
+    @Lob
+    private byte[] imagenes;
+
     @ManyToOne
-    @JoinColumn(name = "creador_id", nullable = false)
-    private Usuarios creador;
+    @JoinColumn(name = "usuario_id")
+    private Usuarios usuario;
 
     @ManyToMany
     @JoinTable(
@@ -35,5 +44,20 @@ public class Catalogo {
         inverseJoinColumns = @JoinColumn(name = "categoria_id")
     )
     private Set<Categorias> categorias;
+
+    public Double PrecioDescuento(){
+        if (EstadoDescuento)
+            return precio - (precio*(descuento/100));
+        return precio;
+    }
     
+    public void ActivarDescuento(Double p){
+        this.descuento = p;
+        this.EstadoDescuento = true;
+    }
+
+    public void DesactivarDescuento(){
+        this.descuento = 0.0;
+        this.EstadoDescuento = false;
+    }
 }

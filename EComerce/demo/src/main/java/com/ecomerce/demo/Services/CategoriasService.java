@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,16 +23,19 @@ public class CategoriasService {
         return categoriasRepository.findAll(pageble);
     }
 
-    public List<Categorias> filtrado(List<String> nombres){
-        List<Categorias> cat = new ArrayList<>();  
-        for (int i = 0; i < nombres.size(); i++) {
-            List<Categorias> categoria = categoriasRepository.findByNombre(nombres.get(i));  
-            if (categoria != null) {  
-                cat.addAll(categoria);
-            }
+    public Page<Categorias> filtrado(List<String> nombres, PageRequest pageable) {
+    List<Categorias> cat = new ArrayList<>();  
+    for (String nombre : nombres) {
+        List<Categorias> categoria = categoriasRepository.findByNombre(nombre);  
+        if (categoria != null) {  
+            cat.addAll(categoria);
         }
-    return cat;
     }
+    int start = (int) pageable.getOffset();
+    int end = Math.min((start + pageable.getPageSize()), cat.size());
+    return new PageImpl<>(cat.subList(start, end), pageable, cat.size());
+    }
+
 
     public Categorias createCategoria(String nombre) throws CategoriasDuplicateException{
         List<Categorias> categorias = categoriasRepository.findByNombre(nombre);

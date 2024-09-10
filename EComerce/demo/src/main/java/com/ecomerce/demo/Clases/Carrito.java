@@ -1,5 +1,5 @@
 package com.ecomerce.demo.Clases;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.ElementCollection;
@@ -8,23 +8,55 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Entity
-@Builder
 public class Carrito {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ElementCollection
-    private List<CatalogoItem> productos;
+    private List<ProductoCarrito> productos = new ArrayList<>();
 
-    private Double precioTotal;
+    private Double precioTotal = 0.0;
 
     @OneToOne(mappedBy = "carrito")
     private Usuarios usuario;
-    
+
+    public Carrito() {
+        this.productos = new ArrayList<>();
+        this.precioTotal = 0.0;
+    }
+
+    public void agregarProducto(Producto producto, int cantidad) {
+        productos.add(new ProductoCarrito(producto, cantidad));
+        actualizarPrecioTotal();
+    }
+
+    public void quitarProducto(Producto producto) {
+        productos.removeIf(p -> p.getProducto().equals(producto));
+        actualizarPrecioTotal();
+    }
+
+    public void vaciarCarrito() {
+        productos.clear();
+        precioTotal = 0.0;
+    }
+
+    public void modificarCantidadProducto(Producto producto, int nuevaCantidad) {
+        productos.stream()
+            .filter(p -> p.getProducto().equals(producto))
+            .findFirst()
+            .ifPresent(p -> p.setCantidad(nuevaCantidad));
+        actualizarPrecioTotal();
+    }
+
+    private void actualizarPrecioTotal() {
+        precioTotal = productos.stream()
+                .mapToDouble(p -> p.getProducto().PrecioDescuento() * p.getCantidad())
+                .sum();
+    }
+
 }

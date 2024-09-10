@@ -10,4 +10,5 @@ import com.ecomerce.demo.Clases.Usuarios;
 @Repository
 public interface UsuariosRepository extends JpaRepository<Usuarios, Long>{
     Optional<Usuarios> findByEmail(String mail);
+    boolean existsByEmail(String email);
 }

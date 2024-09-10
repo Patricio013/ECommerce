@@ -20,7 +20,7 @@ public class Categorias {
     private String nombre;
 
     @ManyToMany(mappedBy = "categorias")
-    private Set<Catalogo> catalogo;
+    private Set<Producto> catalogo;
 
     public Categorias(){
         
