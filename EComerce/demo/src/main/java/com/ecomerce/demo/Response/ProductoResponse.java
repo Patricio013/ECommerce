@@ -3,6 +3,9 @@ package com.ecomerce.demo.Response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Set;
+
+import com.ecomerce.demo.Clases.Categorias;
 
 @Data
 @AllArgsConstructor
@@ -17,5 +20,5 @@ public class ProductoResponse {
     private Double descuento;
     private Boolean estadoDescuento;
     private byte[] imagenes; 
-
+    private Set<Categorias> categorias;
 }

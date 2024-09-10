@@ -11,6 +11,8 @@ import com.ecomerce.demo.Clases.Categorias;
 @Repository
 public interface CategoriasRepository extends JpaRepository<Categorias, Long>{
 
+    Categorias findById(long id);
+
     @Query(value = "select c from Categorias c where c.nombre = ?1")
     List<Categorias> findByNombre(String nombre);
 

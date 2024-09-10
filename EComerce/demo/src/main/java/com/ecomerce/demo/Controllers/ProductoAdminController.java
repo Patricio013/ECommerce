@@ -11,6 +11,11 @@ import com.ecomerce.demo.Response.ProductoResponse;
 import com.ecomerce.demo.Services.ProductoService;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("productosAdmin")
@@ -23,6 +28,12 @@ public class ProductoAdminController {
         ProductoResponse producto = productoService.crearProducto(productoRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(producto);
     }
+
+    @GetMapping
+    public ResponseEntity<List<ProductoResponse>> productosSubidos() {
+        return ResponseEntity.ok(productoService.ProductosCreados());
+    }
+    
 
     @PutMapping("/actualizar")
     public ResponseEntity<ProductoResponse> actualizarProducto(@RequestParam long id, @RequestBody ProductoRequest productoRequest) {
@@ -43,8 +54,20 @@ public class ProductoAdminController {
     }
 
     @DeleteMapping("/borrar/imagen")
-    public ResponseEntity<Void> eliminarImagen(@PathVariable long id) {
+    public ResponseEntity<Void> eliminarImagen(@RequestParam long id) {
         productoService.eliminarImagen(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/AgregarCat")
+    public ResponseEntity<ProductoResponse> agregarCategoria2(@RequestParam long productId, @RequestParam long categoriaId){
+        ProductoResponse producto = productoService.agregarCategoria(productId, categoriaId);
+        return ResponseEntity.ok(producto);
+    }
+
+    @DeleteMapping("/BorrarCat")
+    public ResponseEntity<ProductoResponse> borrarCategoria(@RequestParam long productId, @RequestParam long categoriaId){
+        ProductoResponse producto = productoService.quitarCategoria(productId, categoriaId);
+        return ResponseEntity.ok(producto);
     }
 }

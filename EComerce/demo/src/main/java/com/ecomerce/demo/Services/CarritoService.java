@@ -8,6 +8,8 @@ import com.ecomerce.demo.Clases.Producto;
 import com.ecomerce.demo.Clases.Usuarios;
 import com.ecomerce.demo.Repositorys.CarritoRepository;
 import com.ecomerce.demo.Repositorys.ProductoRepository;
+import com.ecomerce.demo.Repositorys.UsuariosRepository;
+import com.ecomerce.demo.Response.CarritoResponse;
 
 @Service
 public class CarritoService {
@@ -21,42 +23,64 @@ public class CarritoService {
     @Autowired
     private AuthenticationService authenticationService;
 
-    public Carrito obtenerCarrito (){
-        Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
-        return carritoRepository.findCarrito(usuario.getId());
-    }
+    @Autowired
+    private UsuariosRepository usuariosRepository;
 
-    public Carrito agregarProducto(long productId, int cantidad) {
+    public CarritoResponse obtenerCarrito (){
         Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
         Carrito carrito = carritoRepository.findCarrito(usuario.getId());
-        Producto producto = productoRepository.findById(productId);
-        carrito.agregarProducto(producto, cantidad);
-        carritoRepository.save(carrito);
-        return carrito;
+        if (carrito == null){
+            carrito = new Carrito();
+            usuario.setCarrito(carrito);
+            usuariosRepository.save(usuario);
+            carrito = carritoRepository.save(carrito);
+        }
+        CarritoResponse carritoResponse = new CarritoResponse(carrito.getProductos(), carrito.getPrecioTotal());
+        return carritoResponse;
     }
 
-    public Carrito quitarProducto(long productId) {
+    public CarritoResponse agregarProducto(long productId, int cantidad) {
+        Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
+        Carrito carrito = carritoRepository.findCarrito(usuario.getId());
+        if (carrito == null){
+            carrito = new Carrito();
+            usuario.setCarrito(carrito);
+            usuariosRepository.save(usuario);
+            carrito = carritoRepository.save(carrito);
+        }
+        Producto producto = productoRepository.findById(productId);
+        carrito.agregarProducto(producto, cantidad);
+        carrito = carritoRepository.save(carrito);
+        CarritoResponse carritoResponse = new CarritoResponse(carrito.getProductos(), carrito.getPrecioTotal());
+        return carritoResponse;
+    }
+
+    public CarritoResponse quitarProducto(long productId) {
         Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
         Carrito carrito = carritoRepository.findCarrito(usuario.getId());
         Producto producto = productoRepository.findById(productId);
         carrito.quitarProducto(producto);
         carritoRepository.save(carrito);
-        return carrito;
+        CarritoResponse carritoResponse = new CarritoResponse(carrito.getProductos(), carrito.getPrecioTotal());
+        return carritoResponse;
     }
 
-    public Carrito vaciarCarrito() {
+    public CarritoResponse vaciarCarrito() {
         Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
         Carrito carrito = carritoRepository.findCarrito(usuario.getId());
         carrito.vaciarCarrito();
         carritoRepository.save(carrito);
-        return carrito;
+        CarritoResponse carritoResponse = new CarritoResponse(carrito.getProductos(), carrito.getPrecioTotal());
+        return carritoResponse;
     }
 
-    public Carrito modificarCantidadProducto(long productId, int nuevaCantidad){
+    public CarritoResponse modificarCantidadProducto(long productId, int nuevaCantidad){
         Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
         Carrito carrito = carritoRepository.findCarrito(usuario.getId());
         Producto producto = productoRepository.findById(productId);
         carrito.modificarCantidadProducto(producto, nuevaCantidad);
-        return carritoRepository.save(carrito);
+        carritoRepository.save(carrito);
+        CarritoResponse carritoResponse = new CarritoResponse(carrito.getProductos(), carrito.getPrecioTotal());
+        return carritoResponse;
     }
 }

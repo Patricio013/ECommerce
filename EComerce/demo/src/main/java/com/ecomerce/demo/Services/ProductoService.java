@@ -1,12 +1,17 @@
 package com.ecomerce.demo.Services;
 
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.ecomerce.demo.Clases.Categorias;
 import com.ecomerce.demo.Clases.Producto;
+import com.ecomerce.demo.Clases.Usuarios;
+import com.ecomerce.demo.Repositorys.CategoriasRepository;
 import com.ecomerce.demo.Repositorys.ProductoRepository;
 import com.ecomerce.demo.Request.ProductoRequest;
 import com.ecomerce.demo.Response.ProductoResponse;
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +21,22 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    private CategoriasRepository categoriasRepository;
+
     public List<ProductoResponse> obtenerProductosPorUsuario() {
         List<Producto> productos = productoRepository.findAllWithStock();
+        return productos.stream()
+                .map(this::mapearAProductoResponse) 
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductoResponse> ProductosCreados(){
+        Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
+        List<Producto> productos = productoRepository.findAllByAdminId(usuario.getId());
         return productos.stream()
                 .map(this::mapearAProductoResponse) 
                 .collect(Collectors.toList());
@@ -37,7 +56,14 @@ public class ProductoService {
         producto.setDescuento(productoRequest.getDescuento());
         producto.setEstadoDescuento(productoRequest.getEstadoDescuento());
         producto.setImagenes(productoRequest.getImagenes()); 
-
+        Usuarios usuario = authenticationService.obtenerUsuarioAutenticado();
+        producto.setUsuario(usuario);
+        Set<Categorias> categorias = new HashSet<>();
+        for (long categoriaId : productoRequest.getCategoriasIds()) {
+            Categorias categoria = categoriasRepository.findById(categoriaId);
+            categorias.add(categoria);
+        }
+        producto.setCategorias(categorias);
         productoRepository.save(producto);
         return mapearAProductoResponse(producto);
     }
@@ -72,7 +98,29 @@ public class ProductoService {
         productoRepository.save(producto);
     }
 
+    public ProductoResponse agregarCategoria(long productoId, long categoriaId) {
+        Producto producto = productoRepository.findById(productoId);
+        Categorias categoria = categoriasRepository.findById(categoriaId);
+        producto.getCategorias().add(categoria);
+        productoRepository.save(producto);
+        return mapearAProductoResponse(producto);
+    }
+
+    public ProductoResponse quitarCategoria(long productoId, long categoriaId) {
+        Producto producto = productoRepository.findById(productoId);
+        Categorias categoria = categoriasRepository.findById(categoriaId);
+        producto.getCategorias().remove(categoria);
+        productoRepository.save(producto);
+        return mapearAProductoResponse(producto);
+    }
+
     private ProductoResponse mapearAProductoResponse(Producto producto) {
+        Set<Categorias> categorias = new HashSet<>();
+        List<Long> categoriasId = productoRepository.findCategoriaIdsByProductoId(producto.getId());
+        for (long id: categoriasId){
+            Categorias categoria = categoriasRepository.findById(id);
+            categorias.add(categoria);
+        }
         return new ProductoResponse(
             producto.getId(),
             producto.getTitulo(),
@@ -81,7 +129,8 @@ public class ProductoService {
             producto.getStock(),
             producto.getDescuento(),
             producto.getEstadoDescuento(),
-            producto.getImagenes()
+            producto.getImagenes(),
+            categorias
         );
     }
 

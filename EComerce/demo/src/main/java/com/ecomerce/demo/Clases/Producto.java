@@ -39,8 +39,8 @@ public class Producto {
 
     @ManyToMany
     @JoinTable(
-        name = "catalogo_categoria",
-        joinColumns = @JoinColumn(name = "catalogo_id"),
+        name = "producto_categoria",
+        joinColumns = @JoinColumn(name = "producto_id"),
         inverseJoinColumns = @JoinColumn(name = "categoria_id")
     )
     private Set<Categorias> categorias;

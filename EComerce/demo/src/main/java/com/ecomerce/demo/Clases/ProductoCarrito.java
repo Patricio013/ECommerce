@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Embeddable
 public class ProductoCarrito {
+
     @ManyToOne
     private Producto producto;
 
