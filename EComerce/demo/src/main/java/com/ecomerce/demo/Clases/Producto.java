@@ -1,5 +1,6 @@
 package com.ecomerce.demo.Clases;
 
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -59,5 +60,18 @@ public class Producto {
     public void DesactivarDescuento(){
         this.descuento = 0.0;
         this.EstadoDescuento = false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; 
+        if (o == null || getClass() != o.getClass()) return false; 
+        Producto producto = (Producto) o;
+        return id == producto.id; 
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id); 
     }
 }

@@ -10,6 +10,7 @@ import com.ecomerce.demo.Clases.Usuarios;
 import com.ecomerce.demo.Repositorys.CategoriasRepository;
 import com.ecomerce.demo.Repositorys.ProductoRepository;
 import com.ecomerce.demo.Request.ProductoRequest;
+import com.ecomerce.demo.Response.CategoriaProdResponse;
 import com.ecomerce.demo.Response.ProductoResponse;
 import java.util.HashSet;
 import java.util.List;
@@ -109,17 +110,24 @@ public class ProductoService {
     public ProductoResponse quitarCategoria(long productoId, long categoriaId) {
         Producto producto = productoRepository.findById(productoId);
         Categorias categoria = categoriasRepository.findById(categoriaId);
-        producto.getCategorias().remove(categoria);
-        productoRepository.save(producto);
+        if (producto.getCategorias().contains(categoria)) {
+            producto.getCategorias().remove(categoria); 
+            productoRepository.save(producto); 
+        } else {
+            throw new IllegalStateException("La categoría no está asociada al producto");
+        }
         return mapearAProductoResponse(producto);
     }
 
     private ProductoResponse mapearAProductoResponse(Producto producto) {
-        Set<Categorias> categorias = new HashSet<>();
+        Set<CategoriaProdResponse> categorias = new HashSet<>();
         List<Long> categoriasId = productoRepository.findCategoriaIdsByProductoId(producto.getId());
         for (long id: categoriasId){
             Categorias categoria = categoriasRepository.findById(id);
-            categorias.add(categoria);
+            CategoriaProdResponse auxiliar = new CategoriaProdResponse();
+            auxiliar.setId(categoria.getId());
+            auxiliar.setNombre(categoria.getNombre());
+            categorias.add(auxiliar);
         }
         return new ProductoResponse(
             producto.getId(),
